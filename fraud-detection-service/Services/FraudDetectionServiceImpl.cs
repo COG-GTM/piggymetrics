@@ -11,6 +11,7 @@ namespace PiggyMetrics.FraudDetection.Services
     public class FraudDetectionServiceImpl : IFraudDetectionService
     {
         private readonly IMongoCollection<FraudAlert> _alerts;
+        private readonly IMongoCollection<Transaction> _transactions;
         private readonly IFraudRuleRepository _ruleRepository;
         private readonly IAccountServiceClient _accountClient;
 
@@ -24,6 +25,7 @@ namespace PiggyMetrics.FraudDetection.Services
             IAccountServiceClient accountClient)
         {
             _alerts = database.GetCollection<FraudAlert>("fraud_alerts");
+            _transactions = database.GetCollection<Transaction>("analyzed_transactions");
             _ruleRepository = ruleRepository;
             _accountClient = accountClient;
         }
@@ -51,11 +53,13 @@ namespace PiggyMetrics.FraudDetection.Services
                 reasons.Add($"High amount transaction: {transaction.Amount} {transaction.Currency}");
             }
 
-            var recentAlerts = await GetRecentAlerts(transaction.AccountName, VELOCITY_WINDOW_MINUTES);
-            if (recentAlerts.Count() >= VELOCITY_MAX_TRANSACTIONS)
+            await _transactions.InsertOneAsync(transaction);
+
+            var recentTransactionCount = await GetRecentTransactionCount(transaction.AccountName, VELOCITY_WINDOW_MINUTES);
+            if (recentTransactionCount >= VELOCITY_MAX_TRANSACTIONS)
             {
                 totalRiskScore += 0.4;
-                reasons.Add($"Velocity check: {recentAlerts.Count()} transactions in last {VELOCITY_WINDOW_MINUTES} minutes");
+                reasons.Add($"Velocity check: {recentTransactionCount} transactions in last {VELOCITY_WINDOW_MINUTES} minutes");
             }
 
             var riskLevel = CalculateRiskLevel(totalRiskScore);
@@ -107,8 +111,8 @@ namespace PiggyMetrics.FraudDetection.Services
             return new FraudSummary
             {
                 AccountName = accountName,
-                TotalTransactions = alertList.Count,
-                FlaggedTransactions = alertList.Count(a => a.RiskLevel != RiskLevel.Low),
+                TotalTransactions = (int)await GetTotalTransactionCount(accountName),
+                FlaggedTransactions = alertList.Count,
                 OverallRiskScore = alertList.Any() ? alertList.Average(a => a.RiskScore) : 0,
                 RiskCategory = alertList.Any(a => a.RiskLevel == RiskLevel.Critical) ? "Critical"
                     : alertList.Any(a => a.RiskLevel == RiskLevel.High) ? "High"
@@ -138,15 +142,21 @@ namespace PiggyMetrics.FraudDetection.Services
             return (false, null);
         }
 
-        private async Task<IEnumerable<FraudAlert>> GetRecentAlerts(string accountName, int windowMinutes)
+        private async Task<long> GetRecentTransactionCount(string accountName, int windowMinutes)
         {
             var cutoff = DateTime.UtcNow.AddMinutes(-windowMinutes);
-            var filter = Builders<FraudAlert>.Filter.And(
-                Builders<FraudAlert>.Filter.Eq(a => a.AccountName, accountName),
-                Builders<FraudAlert>.Filter.Gte(a => a.CreatedAt, cutoff)
+            var filter = Builders<Transaction>.Filter.And(
+                Builders<Transaction>.Filter.Eq(t => t.AccountName, accountName),
+                Builders<Transaction>.Filter.Gte(t => t.Timestamp, cutoff)
             );
 
-            return await _alerts.Find(filter).ToListAsync();
+            return await _transactions.CountDocumentsAsync(filter);
+        }
+
+        private async Task<long> GetTotalTransactionCount(string accountName)
+        {
+            var filter = Builders<Transaction>.Filter.Eq(t => t.AccountName, accountName);
+            return await _transactions.CountDocumentsAsync(filter);
         }
 
         private RiskLevel CalculateRiskLevel(double score)

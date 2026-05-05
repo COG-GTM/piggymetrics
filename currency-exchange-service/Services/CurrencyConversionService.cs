@@ -35,6 +35,10 @@ namespace PiggyMetrics.CurrencyExchange.Services
 
             var rate = await _rateProvider.GetRate(request.FromCurrency, request.ToCurrency);
             var fee = await GetConversionFee(request.FromCurrency, request.ToCurrency, request.Amount);
+
+            if (fee >= request.Amount)
+                throw new ArgumentException($"Amount {request.Amount} is too small to cover the minimum conversion fee of {fee}");
+
             var amountAfterFee = request.Amount - fee;
             var convertedAmount = amountAfterFee * rate.Rate;
 
