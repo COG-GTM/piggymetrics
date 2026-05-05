@@ -71,6 +71,7 @@ public class OAuth2AuthorizationConfig {
                 .clientId("browser")
                 .clientSecret("{noop}browser")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(PASSWORD_GRANT)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .scope("ui")
