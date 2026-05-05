@@ -5,9 +5,10 @@ spring:
         native:
           search-locations: classpath:/shared
   profiles:
-     active: native
+    active: native
   security:
     user:
+      name: user
       password: ${CONFIG_SERVICE_PASSWORD}
 
 server:
