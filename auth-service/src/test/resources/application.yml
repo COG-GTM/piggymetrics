@@ -3,3 +3,22 @@ spring:
     mongodb:
       database: piggymetrics
       port: 0
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.0
+
+eureka:
+  client:
+    enabled: false
+
+ACCOUNT_SERVICE_PASSWORD: account-test-secret
+STATISTICS_SERVICE_PASSWORD: statistics-test-secret
+NOTIFICATION_SERVICE_PASSWORD: notification-test-secret
