@@ -54,6 +54,53 @@ PUT	| /notifications/settings/current	| Save current account notification settin
 - MongoDB is used as a primary database for each of the services.
 - All services are talking to each other via the Rest API
 
+## .NET Services (Polyglot Extension)
+
+In addition to the Java/Spring Boot services above, this fork adds three .NET Core 2.1 microservices to demonstrate a polyglot distributed system — reflecting real enterprise environments where multiple technology stacks coexist.
+
+### Fraud Detection Service (.NET Core 2.1)
+Analyzes financial transactions for suspicious patterns using configurable rules and risk scoring. Integrates with the Account Service to enrich transaction analysis.
+
+Method	| Path	| Description
+------------- | ------------------------- | -------------
+POST	| /api/fraud/analyze	| Analyze a transaction for potential fraud
+GET	| /api/fraud/alerts/{accountName}	| Get all fraud alerts for an account
+PUT	| /api/fraud/alerts/{alertId}/review	| Review a fraud alert
+GET	| /api/fraud/risk/{accountName}	| Get risk summary for an account
+
+### Compliance Service (.NET Core 2.1)
+Handles regulatory compliance checking, audit logging, and KYC/AML monitoring. Supports EU banking regulations including GDPR, PSD2, DORA, and MiFID.
+
+Method	| Path	| Description
+------------- | ------------------------- | -------------
+POST	| /api/compliance/audit	| Log an audit event
+GET	| /api/compliance/audit/{accountName}	| Get audit trail for an account
+POST	| /api/compliance/check/{accountName}	| Run compliance check for an account
+GET	| /api/compliance/rules	| Get all active compliance rules
+POST	| /api/compliance/rules	| Create a new compliance rule
+
+### Currency Exchange Service (.NET Core 2.1)
+Provides real-time currency conversion and exchange rate management. Supports 14 currencies with LATAM region coverage (BRL, MXN, ARS, COP, PEN, CLP).
+
+Method	| Path	| Description
+------------- | ------------------------- | -------------
+POST	| /api/currency/convert	| Convert currency
+GET	| /api/currency/rates/{baseCurrency}	| Get latest exchange rates
+GET	| /api/currency/rate/{base}/{target}	| Get rate between two currencies
+GET	| /api/currency/currencies	| Get supported currencies
+GET	| /api/currency/fee	| Calculate conversion fee
+
+### Technology Stack (Legacy — Migration Target)
+| Component | Current | Migration Target |
+|---|---|---|
+| Runtime | .NET Core 2.1 (EOL Aug 2021) | .NET 8 |
+| Web Framework | ASP.NET Core 2.1 MVC | ASP.NET Core Minimal APIs |
+| Serialization | Newtonsoft.Json 11.x | System.Text.Json |
+| HTTP Client | RestSharp 106.x | HttpClientFactory |
+| API Docs | Swashbuckle 3.x | Swashbuckle 6.x / NSwag |
+| Resilience | Polly 6.x | Polly 8.x / Microsoft.Extensions.Resilience |
+| Docker Images | microsoft/dotnet:2.1 | mcr.microsoft.com/dotnet/aspnet:8.0 |
+
 ## Infrastructure
 [Spring cloud](https://spring.io/projects/spring-cloud) provides powerful tools for developers to quickly implement common distributed systems patterns -
 <img width="880" alt="Infrastructure services" src="https://cloud.githubusercontent.com/assets/6069066/13906840/365c0d94-eefa-11e5-90ad-9d74804ca412.png">
@@ -225,7 +272,7 @@ In this [configuration](https://github.com/sqshq/PiggyMetrics/blob/master/.travi
 
 ## Let's try it out
 
-Note that starting 8 Spring Boot applications, 4 MongoDB instances and a RabbitMq requires at least 4Gb of RAM.
+Note that starting 9 Java Spring Boot applications, 3 .NET Core services, 6 MongoDB instances and a RabbitMQ instance requires at least 6Gb of RAM.
 
 #### Before you start
 - Install Docker and Docker Compose.
@@ -248,6 +295,9 @@ If you'd like to start applications in Intellij Idea you need to either use [Env
 - http://localhost:8761 - Eureka Dashboard
 - http://localhost:9000/hystrix - Hystrix Dashboard (Turbine stream link: `http://turbine-stream-service:8080/turbine/turbine.stream`)
 - http://localhost:15672 - RabbitMq management (default login/password: guest/guest)
+- http://localhost:8085/swagger - Fraud Detection Service API (.NET)
+- http://localhost:8086/swagger - Compliance Service API (.NET)
+- http://localhost:8087/swagger - Currency Exchange Service API (.NET)
 
 ## Contributions are welcome!
 
