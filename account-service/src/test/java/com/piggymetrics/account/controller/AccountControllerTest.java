@@ -1,32 +1,29 @@
 package com.piggymetrics.account.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.piggymetrics.account.domain.*;
 import com.piggymetrics.account.service.AccountService;
-import com.sun.security.auth.UserPrincipal;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class AccountControllerTest {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -39,9 +36,8 @@ public class AccountControllerTest {
 
 	private MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		initMocks(this);
 		this.mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
 	}
 
@@ -66,7 +62,7 @@ public class AccountControllerTest {
 
 		when(accountService.findByName(account.getName())).thenReturn(account);
 
-		mockMvc.perform(get("/current").principal(new UserPrincipal(account.getName())))
+		mockMvc.perform(get("/current").principal((Principal) () -> account.getName()))
 				.andExpect(jsonPath("$.name").value(account.getName()))
 				.andExpect(status().isOk());
 	}
@@ -100,12 +96,12 @@ public class AccountControllerTest {
 		account.setNote("test note");
 		account.setLastSeen(new Date());
 		account.setSaving(saving);
-		account.setExpenses(ImmutableList.of(grocery));
-		account.setIncomes(ImmutableList.of(salary));
+		account.setExpenses(List.of(grocery));
+		account.setIncomes(List.of(salary));
 
 		String json = mapper.writeValueAsString(account);
 
-		mockMvc.perform(put("/current").principal(new UserPrincipal(account.getName())).contentType(MediaType.APPLICATION_JSON).content(json))
+		mockMvc.perform(put("/current").principal((Principal) () -> account.getName()).contentType(MediaType.APPLICATION_JSON).content(json))
 				.andExpect(status().isOk());
 	}
 
@@ -117,7 +113,7 @@ public class AccountControllerTest {
 
 		String json = mapper.writeValueAsString(account);
 
-		mockMvc.perform(put("/current").principal(new UserPrincipal(account.getName())).contentType(MediaType.APPLICATION_JSON).content(json))
+		mockMvc.perform(put("/current").principal((Principal) () -> account.getName()).contentType(MediaType.APPLICATION_JSON).content(json))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -130,7 +126,7 @@ public class AccountControllerTest {
 
 		String json = mapper.writeValueAsString(user);
 		System.out.println(json);
-		mockMvc.perform(post("/").principal(new UserPrincipal("test")).contentType(MediaType.APPLICATION_JSON).content(json))
+		mockMvc.perform(post("/").principal((Principal) () -> "test").contentType(MediaType.APPLICATION_JSON).content(json))
 				.andExpect(status().isOk());
 	}
 
@@ -142,7 +138,7 @@ public class AccountControllerTest {
 
 		String json = mapper.writeValueAsString(user);
 
-		mockMvc.perform(post("/").principal(new UserPrincipal("test")).contentType(MediaType.APPLICATION_JSON).content(json))
+		mockMvc.perform(post("/").principal((Principal) () -> "test").contentType(MediaType.APPLICATION_JSON).content(json))
 				.andExpect(status().isBadRequest());
 	}
 }

@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          account-service:
+            client-id: account-service
+            client-secret: ${ACCOUNT_SERVICE_PASSWORD}
+            authorization-grant-type: client_credentials
+            scope: server
+        provider:
+          account-service:
+            token-uri: http://auth-service:5000/uaa/oauth/token
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-service:5000/uaa/.well-known/jwks.json
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
