@@ -13,6 +13,13 @@ import java.time.LocalDate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Integration test that exercises the Spring-created Feign proxy for
+ * {@link ExchangeRatesClient} against the real exchange-rates API. The
+ * Feign proxy and its HTTP wiring are produced by the Spring context at
+ * runtime, so this test must boot the context — replacing it with pure
+ * Mockito would only verify a mock and lose the integration coverage.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ExchangeRatesClientTest {
