@@ -22,13 +22,10 @@ public class RecipientServiceImpl implements RecipientService {
 
 	@Override
 	public Recipient findByAccountName(String accountName) {
-		Assert.hasLength(accountName);
+		Assert.hasLength(accountName, "account name must not be empty");
 		return repository.findByAccountName(accountName);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Recipient save(String accountName, Recipient recipient) {
 
@@ -47,9 +44,6 @@ public class RecipientServiceImpl implements RecipientService {
 		return recipient;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<Recipient> findReadyToNotify(NotificationType type) {
 		switch (type) {
@@ -62,9 +56,6 @@ public class RecipientServiceImpl implements RecipientService {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void markNotified(NotificationType type, Recipient recipient) {
 		recipient.getScheduledNotifications().get(type).setLastNotified(new Date());
