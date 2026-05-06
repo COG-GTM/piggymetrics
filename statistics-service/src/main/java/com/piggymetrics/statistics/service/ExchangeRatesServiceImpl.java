@@ -32,9 +32,16 @@ public class ExchangeRatesServiceImpl implements ExchangeRatesService {
 			log.info("exchange rates has been updated: {}", container);
 		}
 
+		BigDecimal eurRate = container.getRates().get(Currency.EUR.name());
+		BigDecimal rubRate = container.getRates().get(Currency.RUB.name());
+
+		if (eurRate == null || rubRate == null) {
+			throw new IllegalStateException("Exchange rates unavailable for required currencies");
+		}
+
 		return Map.of(
-				Currency.EUR, container.getRates().get(Currency.EUR.name()),
-				Currency.RUB, container.getRates().get(Currency.RUB.name()),
+				Currency.EUR, eurRate,
+				Currency.RUB, rubRate,
 				Currency.USD, BigDecimal.ONE
 		);
 	}
