@@ -1,5 +1,6 @@
+using System;
+using System.Net.Http;
 using System.Threading.Tasks;
-using RestSharp;
 
 namespace PiggyMetrics.FraudDetection.Services
 {
@@ -10,26 +11,23 @@ namespace PiggyMetrics.FraudDetection.Services
 
     public class AccountServiceClient : IAccountServiceClient
     {
-        private readonly RestClient _client;
+        private readonly HttpClient _httpClient;
 
-        public AccountServiceClient()
+        public AccountServiceClient(HttpClient httpClient)
         {
-            var accountServiceUrl = System.Environment.GetEnvironmentVariable("ACCOUNT_SERVICE_URL")
-                ?? "http://account-service:6000";
-            _client = new RestClient(accountServiceUrl);
+            _httpClient = httpClient;
         }
 
         public async Task<string> GetAccountData(string accountName)
         {
-            var request = new RestRequest($"/{accountName}", Method.GET);
-            var response = await _client.ExecuteTaskAsync(request);
+            var response = await _httpClient.GetAsync($"/{accountName}");
 
-            if (!response.IsSuccessful)
+            if (!response.IsSuccessStatusCode)
             {
-                throw new System.Exception($"Failed to get account data for {accountName}: {response.StatusCode}");
+                throw new Exception($"Failed to get account data for {accountName}: {response.StatusCode}");
             }
 
-            return response.Content;
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }
