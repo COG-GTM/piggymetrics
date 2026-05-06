@@ -1,7 +1,5 @@
 package com.piggymetrics.statistics.service;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.piggymetrics.statistics.domain.Account;
 import com.piggymetrics.statistics.domain.Currency;
 import com.piggymetrics.statistics.domain.Item;
@@ -11,10 +9,11 @@ import com.piggymetrics.statistics.domain.timeseries.DataPoint;
 import com.piggymetrics.statistics.domain.timeseries.ItemMetric;
 import com.piggymetrics.statistics.domain.timeseries.StatisticMetric;
 import com.piggymetrics.statistics.repository.DataPointRepository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,16 +23,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-public class StatisticsServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+class StatisticsServiceImplTest {
 
 	@InjectMocks
 	private StatisticsServiceImpl statisticsService;
@@ -44,36 +44,29 @@ public class StatisticsServiceImplTest {
 	@Mock
 	private DataPointRepository repository;
 
-	@Before
-	public void setup() {
-		initMocks(this);
-	}
-
 	@Test
-	public void shouldFindDataPointListByAccountName() {
-		final List<DataPoint> list = ImmutableList.of(new DataPoint());
+	void shouldFindDataPointListByAccountName() {
+		final List<DataPoint> list = List.of(new DataPoint());
 		when(repository.findByIdAccount("test")).thenReturn(list);
 
 		List<DataPoint> result = statisticsService.findByAccountName("test");
 		assertEquals(list, result);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToFindDataPointWhenAccountNameIsNull() {
-		statisticsService.findByAccountName(null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToFindDataPointWhenAccountNameIsEmpty() {
-		statisticsService.findByAccountName("");
+	@Test
+	void shouldFailToFindDataPointWhenAccountNameIsNull() {
+		assertThrows(IllegalArgumentException.class, () ->
+				statisticsService.findByAccountName(null));
 	}
 
 	@Test
-	public void shouldSaveDataPoint() {
+	void shouldFailToFindDataPointWhenAccountNameIsEmpty() {
+		assertThrows(IllegalArgumentException.class, () ->
+				statisticsService.findByAccountName(""));
+	}
 
-		/**
-		 * Given
-		 */
+	@Test
+	void shouldSaveDataPoint() {
 
 		Item salary = new Item();
 		salary.setTitle("Salary");
@@ -101,19 +94,15 @@ public class StatisticsServiceImplTest {
 		saving.setCapitalization(false);
 
 		Account account = new Account();
-		account.setIncomes(ImmutableList.of(salary));
-		account.setExpenses(ImmutableList.of(grocery, vacation));
+		account.setIncomes(List.of(salary));
+		account.setExpenses(List.of(grocery, vacation));
 		account.setSaving(saving);
 
-		final Map<Currency, BigDecimal> rates = ImmutableMap.of(
+		final Map<Currency, BigDecimal> rates = Map.of(
 				Currency.EUR, new BigDecimal("0.8"),
 				Currency.RUB, new BigDecimal("80"),
 				Currency.USD, BigDecimal.ONE
 		);
-
-		/**
-		 * When
-		 */
 
 		when(ratesService.convert(any(Currency.class),any(Currency.class),any(BigDecimal.class)))
 				.then(i -> ((BigDecimal)i.getArgument(2))
@@ -124,10 +113,6 @@ public class StatisticsServiceImplTest {
 		when(repository.save(any(DataPoint.class))).then(returnsFirstArg());
 
 		DataPoint dataPoint = statisticsService.save("test", account);
-
-		/**
-		 * Then
-		 */
 
 		final BigDecimal expectedExpensesAmount = new BigDecimal("17.8861");
 		final BigDecimal expectedIncomesAmount = new BigDecimal("298.9802");

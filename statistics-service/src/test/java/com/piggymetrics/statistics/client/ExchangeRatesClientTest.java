@@ -2,26 +2,28 @@ package com.piggymetrics.statistics.client;
 
 import com.piggymetrics.statistics.domain.Currency;
 import com.piggymetrics.statistics.domain.ExchangeRatesContainer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.time.LocalDate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
-public class ExchangeRatesClientTest {
+class ExchangeRatesClientTest {
+
+	@MockBean
+	private JwtDecoder jwtDecoder;
 
 	@Autowired
 	private ExchangeRatesClient client;
 
 	@Test
-	public void shouldRetrieveExchangeRates() {
+	void shouldRetrieveExchangeRates() {
 
 		ExchangeRatesContainer container = client.getRates(Currency.getBase());
 
@@ -35,7 +37,7 @@ public class ExchangeRatesClientTest {
 	}
 
 	@Test
-	public void shouldRetrieveExchangeRatesForSpecifiedCurrency() {
+	void shouldRetrieveExchangeRatesForSpecifiedCurrency() {
 
 		Currency requestedCurrency = Currency.EUR;
 		ExchangeRatesContainer container = client.getRates(Currency.getBase());

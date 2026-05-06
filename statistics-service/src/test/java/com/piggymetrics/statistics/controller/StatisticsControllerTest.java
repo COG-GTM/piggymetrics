@@ -1,7 +1,6 @@
 package com.piggymetrics.statistics.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.piggymetrics.statistics.domain.Account;
 import com.piggymetrics.statistics.domain.Currency;
 import com.piggymetrics.statistics.domain.Item;
@@ -10,35 +9,33 @@ import com.piggymetrics.statistics.domain.TimePeriod;
 import com.piggymetrics.statistics.domain.timeseries.DataPoint;
 import com.piggymetrics.statistics.domain.timeseries.DataPointId;
 import com.piggymetrics.statistics.service.StatisticsService;
-import com.sun.security.auth.UserPrincipal;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class StatisticsControllerTest {
+@ExtendWith(MockitoExtension.class)
+class StatisticsControllerTest {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -50,42 +47,45 @@ public class StatisticsControllerTest {
 
 	private MockMvc mockMvc;
 
-	@Before
-	public void setup() {
-		initMocks(this);
+	@BeforeEach
+	void setup() {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(statisticsController).build();
 	}
 
 	@Test
-	public void shouldGetStatisticsByAccountName() throws Exception {
+	void shouldGetStatisticsByAccountName() throws Exception {
 
 		final DataPoint dataPoint = new DataPoint();
 		dataPoint.setId(new DataPointId("test", new Date()));
 
 		when(statisticsService.findByAccountName(dataPoint.getId().getAccount()))
-				.thenReturn(ImmutableList.of(dataPoint));
+				.thenReturn(List.of(dataPoint));
 
-		mockMvc.perform(get("/test").principal(new UserPrincipal(dataPoint.getId().getAccount())))
+		Principal principal = () -> dataPoint.getId().getAccount();
+
+		mockMvc.perform(get("/test").principal(principal))
 				.andExpect(jsonPath("$[0].id.account").value(dataPoint.getId().getAccount()))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	public void shouldGetCurrentAccountStatistics() throws Exception {
+	void shouldGetCurrentAccountStatistics() throws Exception {
 
 		final DataPoint dataPoint = new DataPoint();
 		dataPoint.setId(new DataPointId("test", new Date()));
 
 		when(statisticsService.findByAccountName(dataPoint.getId().getAccount()))
-				.thenReturn(ImmutableList.of(dataPoint));
+				.thenReturn(List.of(dataPoint));
 
-		mockMvc.perform(get("/current").principal(new UserPrincipal(dataPoint.getId().getAccount())))
+		Principal principal = () -> dataPoint.getId().getAccount();
+
+		mockMvc.perform(get("/current").principal(principal))
 				.andExpect(jsonPath("$[0].id.account").value(dataPoint.getId().getAccount()))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	public void shouldSaveAccountStatistics() throws Exception {
+	void shouldSaveAccountStatistics() throws Exception {
 
 		Saving saving = new Saving();
 		saving.setAmount(new BigDecimal(1500));
@@ -108,8 +108,8 @@ public class StatisticsControllerTest {
 
 		final Account account = new Account();
 		account.setSaving(saving);
-		account.setExpenses(ImmutableList.of(grocery));
-		account.setIncomes(ImmutableList.of(salary));
+		account.setExpenses(List.of(grocery));
+		account.setIncomes(List.of(salary));
 
 		String json = mapper.writeValueAsString(account);
 

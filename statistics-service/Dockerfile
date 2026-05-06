@@ -1,5 +1,4 @@
-FROM java:8-jre
-MAINTAINER Alexander Lukyanchikov <sqshq@sqshq.com>
+FROM eclipse-temurin:21-jre
 
 ADD ./target/statistics-service.jar /app/
 CMD ["java", "-Xmx200m", "-jar", "/app/statistics-service.jar"]
