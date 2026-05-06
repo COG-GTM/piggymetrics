@@ -1,26 +1,27 @@
 package com.piggymetrics.notification.service;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.piggymetrics.notification.domain.Frequency;
 import com.piggymetrics.notification.domain.NotificationSettings;
 import com.piggymetrics.notification.domain.NotificationType;
 import com.piggymetrics.notification.domain.Recipient;
 import com.piggymetrics.notification.repository.RecipientRepository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class RecipientServiceImplTest {
 
 	@InjectMocks
@@ -28,11 +29,6 @@ public class RecipientServiceImplTest {
 
 	@Mock
 	private RecipientRepository repository;
-
-	@Before
-	public void setup() {
-		initMocks(this);
-	}
 
 	@Test
 	public void shouldFindByAccountName() {
@@ -45,9 +41,9 @@ public class RecipientServiceImplTest {
 		assertEquals(recipient, found);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldFailToFindRecipientWhenAccountNameIsEmpty() {
-		recipientService.findByAccountName("");
+		assertThrows(IllegalArgumentException.class, () -> recipientService.findByAccountName(""));
 	}
 
 	@Test
@@ -65,7 +61,7 @@ public class RecipientServiceImplTest {
 
 		Recipient recipient = new Recipient();
 		recipient.setEmail("test@test.com");
-		recipient.setScheduledNotifications(ImmutableMap.of(
+		recipient.setScheduledNotifications(Map.of(
 				NotificationType.BACKUP, backup,
 				NotificationType.REMIND, remind
 		));
@@ -79,7 +75,7 @@ public class RecipientServiceImplTest {
 
 	@Test
 	public void shouldFindReadyToNotifyWhenNotificationTypeIsBackup() {
-		final List<Recipient> recipients = ImmutableList.of(new Recipient());
+		final List<Recipient> recipients = List.of(new Recipient());
 		when(repository.findReadyForBackup()).thenReturn(recipients);
 
 		List<Recipient> found = recipientService.findReadyToNotify(NotificationType.BACKUP);
@@ -88,7 +84,7 @@ public class RecipientServiceImplTest {
 
 	@Test
 	public void shouldFindReadyToNotifyWhenNotificationTypeIsRemind() {
-		final List<Recipient> recipients = ImmutableList.of(new Recipient());
+		final List<Recipient> recipients = List.of(new Recipient());
 		when(repository.findReadyForRemind()).thenReturn(recipients);
 
 		List<Recipient> found = recipientService.findReadyToNotify(NotificationType.REMIND);
@@ -106,9 +102,9 @@ public class RecipientServiceImplTest {
 		Recipient recipient = new Recipient();
 		recipient.setAccountName("test");
 		recipient.setEmail("test@test.com");
-		recipient.setScheduledNotifications(ImmutableMap.of(
+		recipient.setScheduledNotifications(new java.util.HashMap<>(Map.of(
 				NotificationType.REMIND, remind
-		));
+		)));
 
 		recipientService.markNotified(NotificationType.REMIND, recipient);
 		assertNotNull(recipient.getScheduledNotifications().get(NotificationType.REMIND).getLastNotified());

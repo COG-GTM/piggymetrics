@@ -1,21 +1,16 @@
-remind:
-  cron: 0 0 0 * * *
-  email:
-    text: "Hey, {0}! We''ve missed you here on PiggyMetrics. It''s time to check your budget statistics.\r\n\r\nCheers,\r\nPiggyMetrics team"
-    subject: PiggyMetrics reminder
-
-backup:
-  cron: 0 0 12 * * *
-  email:
-    text: "Howdy, {0}. Your account backup is ready.\r\n\r\nCheers,\r\nPiggyMetrics team"
-    subject: PiggyMetrics account backup
-    attachment: backup.json
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.0
 
 spring:
+  cloud:
+    config:
+      enabled: false
   data:
     mongodb:
       database: piggymetrics
-      port: 0
   mail:
     host: smtp.gmail.com
     port: 465
@@ -31,3 +26,37 @@ spring:
             fallback: false
           ssl:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          notification-service:
+            client-id: test
+            client-secret: test
+            authorization-grant-type: client_credentials
+            scope: server
+        provider:
+          notification-service:
+            token-uri: http://localhost:5000/uaa/oauth/token
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:5000/uaa/check_token
+          client-id: test
+          client-secret: test
+
+eureka:
+  client:
+    enabled: false
+
+remind:
+  cron: 0 0 0 * * *
+  email:
+    text: "Hey, {0}! We''ve missed you here on PiggyMetrics. It''s time to check your budget statistics.\r\n\r\nCheers,\r\nPiggyMetrics team"
+    subject: PiggyMetrics reminder
+
+backup:
+  cron: 0 0 12 * * *
+  email:
+    text: "Howdy, {0}. Your account backup is ready.\r\n\r\nCheers,\r\nPiggyMetrics team"
+    subject: PiggyMetrics account backup
+    attachment: backup.json
