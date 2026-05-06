@@ -1,7 +1,1 @@
-spring:
-  cloud:
-    config:
-      enabled: false
-eureka:
-  client:
-    enabled: false
+# Deprecated in Spring Boot 3.x - configuration moved to application.yml
