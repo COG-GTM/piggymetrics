@@ -74,7 +74,7 @@ namespace PiggyMetrics.CurrencyExchange.Services
 
             try
             {
-                var response = await _httpClient.GetAsync($"/latest?base={baseCurrency}");
+                using var response = await _httpClient.GetAsync($"/latest?base={baseCurrency}");
 
                 if (response.IsSuccessStatusCode)
                 {

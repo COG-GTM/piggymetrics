@@ -12,7 +12,7 @@ builder.Services.AddHttpClient<IExchangeRateProvider, ExchangeRateProvider>(clie
         ?? "https://api.exchangerate.host";
     client.BaseAddress = new Uri(rateApiUrl);
 });
-builder.Services.AddSingleton<ICurrencyConversionService, CurrencyConversionService>();
+builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
