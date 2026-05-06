@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using PiggyMetrics.CurrencyExchange.Models;
-using RestSharp;
-using Newtonsoft.Json.Linq;
 
 namespace PiggyMetrics.CurrencyExchange.Services
 {
@@ -18,7 +18,7 @@ namespace PiggyMetrics.CurrencyExchange.Services
     public class ExchangeRateProvider : IExchangeRateProvider
     {
         private readonly IMemoryCache _cache;
-        private readonly RestClient _client;
+        private readonly HttpClient _httpClient;
         private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(30);
 
         private static readonly Dictionary<string, decimal> _fallbackRates = new Dictionary<string, decimal>
@@ -57,12 +57,10 @@ namespace PiggyMetrics.CurrencyExchange.Services
             new SupportedCurrency { Code = "CLP", Name = "Chilean Peso", Symbol = "CL$", DecimalPlaces = 0 }
         };
 
-        public ExchangeRateProvider(IMemoryCache cache)
+        public ExchangeRateProvider(HttpClient httpClient, IMemoryCache cache)
         {
+            _httpClient = httpClient;
             _cache = cache;
-            var rateApiUrl = Environment.GetEnvironmentVariable("EXCHANGE_RATE_API_URL")
-                ?? "https://api.exchangerate.host";
-            _client = new RestClient(rateApiUrl);
         }
 
         public async Task<ExchangeRateTable> GetLatestRates(string baseCurrency)
@@ -76,19 +74,20 @@ namespace PiggyMetrics.CurrencyExchange.Services
 
             try
             {
-                var request = new RestRequest($"/latest?base={baseCurrency}", Method.GET);
-                var response = await _client.ExecuteTaskAsync(request);
+                using var response = await _httpClient.GetAsync($"/latest?base={baseCurrency}");
 
-                if (response.IsSuccessful)
+                if (response.IsSuccessStatusCode)
                 {
-                    var json = JObject.Parse(response.Content);
+                    var content = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(content);
                     var rates = new Dictionary<string, decimal>();
 
-                    foreach (var rate in json["rates"].Children<JProperty>())
+                    var ratesElement = doc.RootElement.GetProperty("rates");
+                    foreach (var prop in ratesElement.EnumerateObject())
                     {
-                        if (_fallbackRates.ContainsKey(rate.Name))
+                        if (_fallbackRates.ContainsKey(prop.Name))
                         {
-                            rates[rate.Name] = rate.Value.ToObject<decimal>();
+                            rates[prop.Name] = prop.Value.GetDecimal();
                         }
                     }
 
