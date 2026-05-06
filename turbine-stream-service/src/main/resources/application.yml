@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: turbine-stream-service
+  config:
+    import: "configserver:http://config:8888"
+  cloud:
+    config:
+      fail-fast: true
+      password: ${CONFIG_SERVICE_PASSWORD}
+      username: user
+    function:
+      definition: metricsConsumer
+    stream:
+      bindings:
+        metricsConsumer-in-0:
+          destination: metrics
+          group: turbine-stream-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8989
