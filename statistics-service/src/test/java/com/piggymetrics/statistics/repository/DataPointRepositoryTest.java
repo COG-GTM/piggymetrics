@@ -1,32 +1,32 @@
 package com.piggymetrics.statistics.repository;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
+import com.piggymetrics.statistics.config.MongoConfig;
 import com.piggymetrics.statistics.domain.timeseries.DataPoint;
 import com.piggymetrics.statistics.domain.timeseries.DataPointId;
 import com.piggymetrics.statistics.domain.timeseries.ItemMetric;
 import com.piggymetrics.statistics.domain.timeseries.StatisticMetric;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
 @DataMongoTest
-public class DataPointRepositoryTest {
+@Import(MongoConfig.class)
+class DataPointRepositoryTest {
 
 	@Autowired
 	private DataPointRepository repository;
 
 	@Test
-	public void shouldSaveDataPoint() {
+	void shouldSaveDataPoint() {
 
 		ItemMetric salary = new ItemMetric("salary", new BigDecimal(20_000));
 
@@ -37,9 +37,9 @@ public class DataPointRepositoryTest {
 
 		DataPoint point = new DataPoint();
 		point.setId(pointId);
-		point.setIncomes(Sets.newHashSet(salary));
-		point.setExpenses(Sets.newHashSet(grocery, vacation));
-		point.setStatistics(ImmutableMap.of(
+		point.setIncomes(Set.of(salary));
+		point.setExpenses(Set.of(grocery, vacation));
+		point.setStatistics(Map.of(
 				StatisticMetric.SAVING_AMOUNT, new BigDecimal(400_000),
 				StatisticMetric.INCOMES_AMOUNT, new BigDecimal(20_000),
 				StatisticMetric.EXPENSES_AMOUNT, new BigDecimal(3_000)
@@ -56,7 +56,7 @@ public class DataPointRepositoryTest {
 	}
 
 	@Test
-	public void shouldRewriteDataPointWithinADay() {
+	void shouldRewriteDataPointWithinADay() {
 
 		final BigDecimal earlyAmount = new BigDecimal(100);
 		final BigDecimal lateAmount = new BigDecimal(200);
@@ -65,7 +65,7 @@ public class DataPointRepositoryTest {
 
 		DataPoint earlier = new DataPoint();
 		earlier.setId(pointId);
-		earlier.setStatistics(ImmutableMap.of(
+		earlier.setStatistics(Map.of(
 				StatisticMetric.SAVING_AMOUNT, earlyAmount
 		));
 
@@ -73,7 +73,7 @@ public class DataPointRepositoryTest {
 
 		DataPoint later = new DataPoint();
 		later.setId(pointId);
-		later.setStatistics(ImmutableMap.of(
+		later.setStatistics(Map.of(
 				StatisticMetric.SAVING_AMOUNT, lateAmount
 		));
 

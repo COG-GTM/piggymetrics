@@ -1,16 +1,17 @@
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 20000
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.0
 
 spring:
   data:
     mongodb:
       database: piggymetrics
-      port: 0
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
 rates:
   url: https://api.exchangeratesapi.io
