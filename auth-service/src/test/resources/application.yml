@@ -1,5 +1,22 @@
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.0
+
 spring:
+  config:
+    import: ""
   data:
     mongodb:
       database: piggymetrics
       port: 0
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
