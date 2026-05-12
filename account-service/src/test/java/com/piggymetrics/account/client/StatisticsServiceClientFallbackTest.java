@@ -1,43 +1,32 @@
 package com.piggymetrics.account.client;
 
+import com.piggymetrics.account.config.TestSecurityConfig;
 import com.piggymetrics.account.domain.Account;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.rule.OutputCapture;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.context.annotation.Import;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author cdov
- */
-@RunWith(SpringRunner.class)
+@ExtendWith(OutputCaptureExtension.class)
 @SpringBootTest(properties = {
-        "feign.hystrix.enabled=true"
+        "spring.cloud.openfeign.circuitbreaker.enabled=true"
 })
+@Import(TestSecurityConfig.class)
 public class StatisticsServiceClientFallbackTest {
+
     @Autowired
     private StatisticsServiceClient statisticsServiceClient;
 
-    @Rule
-    public final OutputCapture outputCapture = new OutputCapture();
-
-    @Before
-    public void setup() {
-        outputCapture.reset();
-    }
-
     @Test
-    public void testUpdateStatisticsWithFailFallback(){
+    public void testUpdateStatisticsWithFailFallback(CapturedOutput output) {
         statisticsServiceClient.updateStatistics("test", new Account());
 
-        outputCapture.expect(containsString("Error during update statistics for account: test"));
-
+        assertThat(output.getOut() + output.getErr()).contains("Error during update statistics for account: test");
     }
 
 }
-
