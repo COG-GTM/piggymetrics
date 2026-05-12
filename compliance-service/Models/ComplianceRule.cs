@@ -8,16 +8,16 @@ namespace PiggyMetrics.Compliance.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [BsonElement("regulation")]
-        public string Regulation { get; set; }
+        public string Regulation { get; set; } = string.Empty;
 
         [BsonElement("ruleCode")]
-        public string RuleCode { get; set; }
+        public string RuleCode { get; set; } = string.Empty;
 
         [BsonElement("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [BsonElement("category")]
         public ComplianceCategory Category { get; set; }
@@ -32,7 +32,7 @@ namespace PiggyMetrics.Compliance.Models
         public DateTime LastUpdated { get; set; }
 
         [BsonElement("jurisdiction")]
-        public string Jurisdiction { get; set; }
+        public string? Jurisdiction { get; set; }
     }
 
     public enum ComplianceCategory
