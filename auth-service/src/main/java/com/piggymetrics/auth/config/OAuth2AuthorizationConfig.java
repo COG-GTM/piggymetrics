@@ -19,7 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -56,7 +56,7 @@ public class OAuth2AuthorizationConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(Environment env) {
+    public RegisteredClientRepository registeredClientRepository(Environment env, PasswordEncoder passwordEncoder) {
         RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("browser")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
@@ -69,7 +69,7 @@ public class OAuth2AuthorizationConfig {
 
         RegisteredClient accountService = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("account-service")
-                .clientSecret("{bcrypt}" + new BCryptPasswordEncoder().encode(
+                .clientSecret(passwordEncoder.encode(
                         env.getProperty("ACCOUNT_SERVICE_PASSWORD", "account-secret")))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -79,7 +79,7 @@ public class OAuth2AuthorizationConfig {
 
         RegisteredClient statisticsService = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("statistics-service")
-                .clientSecret("{bcrypt}" + new BCryptPasswordEncoder().encode(
+                .clientSecret(passwordEncoder.encode(
                         env.getProperty("STATISTICS_SERVICE_PASSWORD", "statistics-secret")))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -89,7 +89,7 @@ public class OAuth2AuthorizationConfig {
 
         RegisteredClient notificationService = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("notification-service")
-                .clientSecret("{bcrypt}" + new BCryptPasswordEncoder().encode(
+                .clientSecret(passwordEncoder.encode(
                         env.getProperty("NOTIFICATION_SERVICE_PASSWORD", "notification-secret")))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -137,6 +137,6 @@ public class OAuth2AuthorizationConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }

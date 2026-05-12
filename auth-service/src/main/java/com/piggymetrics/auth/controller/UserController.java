@@ -24,6 +24,7 @@ public class UserController {
 		return principal;
 	}
 
+	@PreAuthorize("hasAuthority('SCOPE_server')")
 	@RequestMapping(method = RequestMethod.POST)
 	public void createUser(@Valid @RequestBody User user) {
 		userService.create(user);
