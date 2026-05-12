@@ -1,16 +1,33 @@
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 20000
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.9
 
 spring:
   data:
     mongodb:
       database: piggymetrics
-      port: 0
+  cloud:
+    config:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:5000/uaa/oauth/check_token
+          client-id: statistics-service
+          client-secret: test-secret
 
 rates:
   url: https://api.exchangeratesapi.io
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      rates-client:
+        register-health-indicator: true
+
+eureka:
+  client:
+    enabled: false
