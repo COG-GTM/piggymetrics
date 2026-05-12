@@ -41,9 +41,10 @@ public class ResourceServerConfig {
                     .principal("notification-service")
                     .build();
             var authorizedClient = authorizedClientManager.authorize(authorizeRequest);
-            if (authorizedClient != null) {
-                requestTemplate.header("Authorization", "Bearer " + authorizedClient.getAccessToken().getTokenValue());
+            if (authorizedClient == null) {
+                throw new IllegalStateException("Failed to authorize OAuth2 client 'notification-service'");
             }
+            requestTemplate.header("Authorization", "Bearer " + authorizedClient.getAccessToken().getTokenValue());
         };
     }
 }
