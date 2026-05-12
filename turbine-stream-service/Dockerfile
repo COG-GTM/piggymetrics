@@ -1,5 +1,4 @@
-FROM java:8-jre
-MAINTAINER Chi Dov <d.chiproeng@gmail.com>
+FROM eclipse-temurin:21-jre
 
 ADD ./target/turbine-stream-service.jar /app/
 CMD ["java", "-Xmx200m", "-jar", "/app/turbine-stream-service.jar"]
