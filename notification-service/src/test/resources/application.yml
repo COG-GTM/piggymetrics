@@ -11,11 +11,14 @@ backup:
     subject: PiggyMetrics account backup
     attachment: backup.json
 
+eureka:
+  client:
+    enabled: false
+
 spring:
   data:
     mongodb:
       database: piggymetrics
-      port: 0
   mail:
     host: smtp.gmail.com
     port: 465
@@ -31,3 +34,18 @@ spring:
             fallback: false
           ssl:
             enable: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:5000/uaa
+      client:
+        registration:
+          notification-service:
+            client-id: notification-service
+            client-secret: test-secret
+            authorization-grant-type: client_credentials
+            provider: auth-service
+        provider:
+          auth-service:
+            token-uri: http://localhost:5000/uaa/oauth/token
