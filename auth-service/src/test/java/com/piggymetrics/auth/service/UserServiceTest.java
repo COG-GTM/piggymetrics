@@ -2,6 +2,7 @@ package com.piggymetrics.auth.service;
 
 import com.piggymetrics.auth.domain.User;
 import com.piggymetrics.auth.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,9 @@ class UserServiceTest {
 	@Mock
 	private UserRepository repository;
 
+	@Mock
+	private PasswordEncoder passwordEncoder;
+
 	@Test
 	void shouldCreateUser() {
 
@@ -29,6 +33,7 @@ class UserServiceTest {
 		user.setUsername("name");
 		user.setPassword("password");
 
+		when(passwordEncoder.encode("password")).thenReturn("{bcrypt}encoded");
 		userService.create(user);
 		verify(repository, times(1)).save(user);
 	}
