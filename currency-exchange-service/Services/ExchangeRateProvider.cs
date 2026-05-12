@@ -91,6 +91,9 @@ namespace PiggyMetrics.CurrencyExchange.Services
                         }
                     }
 
+                    if (rates.Count == 0)
+                        throw new InvalidOperationException("No rates in API response");
+
                     var table = new ExchangeRateTable
                     {
                         BaseCurrency = baseCurrency,
