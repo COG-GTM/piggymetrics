@@ -5,6 +5,8 @@ de:
         version: 7.0.0
 
 spring:
+  config:
+    import: ""
   data:
     mongodb:
       database: piggymetrics
