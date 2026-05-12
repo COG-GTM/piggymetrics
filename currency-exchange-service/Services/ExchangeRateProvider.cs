@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using PiggyMetrics.CurrencyExchange.Models;
-using RestSharp;
-using Newtonsoft.Json.Linq;
 
 namespace PiggyMetrics.CurrencyExchange.Services
 {
@@ -18,10 +14,10 @@ namespace PiggyMetrics.CurrencyExchange.Services
     public class ExchangeRateProvider : IExchangeRateProvider
     {
         private readonly IMemoryCache _cache;
-        private readonly RestClient _client;
+        private readonly HttpClient _httpClient;
         private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(30);
 
-        private static readonly Dictionary<string, decimal> _fallbackRates = new Dictionary<string, decimal>
+        private static readonly Dictionary<string, decimal> _fallbackRates = new()
         {
             { "EUR", 1.0m },
             { "USD", 1.08m },
@@ -39,7 +35,7 @@ namespace PiggyMetrics.CurrencyExchange.Services
             { "CLP", 950.00m }
         };
 
-        private static readonly List<SupportedCurrency> _supportedCurrencies = new List<SupportedCurrency>
+        private static readonly List<SupportedCurrency> _supportedCurrencies = new()
         {
             new SupportedCurrency { Code = "EUR", Name = "Euro", Symbol = "\u20AC", DecimalPlaces = 2 },
             new SupportedCurrency { Code = "USD", Name = "US Dollar", Symbol = "$", DecimalPlaces = 2 },
@@ -57,38 +53,41 @@ namespace PiggyMetrics.CurrencyExchange.Services
             new SupportedCurrency { Code = "CLP", Name = "Chilean Peso", Symbol = "CL$", DecimalPlaces = 0 }
         };
 
-        public ExchangeRateProvider(IMemoryCache cache)
+        public ExchangeRateProvider(IMemoryCache cache, HttpClient httpClient)
         {
             _cache = cache;
-            var rateApiUrl = Environment.GetEnvironmentVariable("EXCHANGE_RATE_API_URL")
-                ?? "https://api.exchangerate.host";
-            _client = new RestClient(rateApiUrl);
+            _httpClient = httpClient;
         }
 
         public async Task<ExchangeRateTable> GetLatestRates(string baseCurrency)
         {
             var cacheKey = $"rates_{baseCurrency}";
 
-            if (_cache.TryGetValue(cacheKey, out ExchangeRateTable cachedRates))
+            if (_cache.TryGetValue(cacheKey, out ExchangeRateTable? cachedRates) && cachedRates is not null)
             {
                 return cachedRates;
             }
 
             try
             {
-                var request = new RestRequest($"/latest?base={baseCurrency}", Method.GET);
-                var response = await _client.ExecuteTaskAsync(request);
+                var response = await _httpClient.GetAsync($"/latest?base={baseCurrency}");
 
-                if (response.IsSuccessful)
+                if (response.IsSuccessStatusCode)
                 {
-                    var json = JObject.Parse(response.Content);
+                    var content = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(content);
+                    var root = doc.RootElement;
                     var rates = new Dictionary<string, decimal>();
 
-                    foreach (var rate in json["rates"].Children<JProperty>())
+                    if (root.TryGetProperty("rates", out var ratesElement))
                     {
-                        if (_fallbackRates.ContainsKey(rate.Name))
+                        foreach (var property in ratesElement.EnumerateObject())
                         {
-                            rates[rate.Name] = rate.Value.ToObject<decimal>();
+                            if (_fallbackRates.ContainsKey(property.Name) &&
+                                property.Value.TryGetDecimal(out var rateValue))
+                            {
+                                rates[property.Name] = rateValue;
+                            }
                         }
                     }
 
@@ -115,13 +114,13 @@ namespace PiggyMetrics.CurrencyExchange.Services
         {
             var table = await GetLatestRates(baseCurrency);
 
-            if (table.Rates.ContainsKey(targetCurrency))
+            if (table.Rates.TryGetValue(targetCurrency, out var rate))
             {
                 return new ExchangeRate
                 {
                     BaseCurrency = baseCurrency,
                     TargetCurrency = targetCurrency,
-                    Rate = table.Rates[targetCurrency],
+                    Rate = rate,
                     Timestamp = table.Timestamp,
                     Source = "exchange-rate-api"
                 };
@@ -137,8 +136,8 @@ namespace PiggyMetrics.CurrencyExchange.Services
 
         private ExchangeRateTable GetFallbackRates(string baseCurrency)
         {
-            var baseRate = _fallbackRates.ContainsKey(baseCurrency)
-                ? _fallbackRates[baseCurrency]
+            var baseRate = _fallbackRates.TryGetValue(baseCurrency, out var bRate)
+                ? bRate
                 : 1.0m;
 
             var rates = new Dictionary<string, decimal>();
