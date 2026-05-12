@@ -1,28 +1,43 @@
 spring:
   cloud:
     gateway:
-      default-filters:
-        - name: CircuitBreaker
-          args:
-            name: defaultCircuitBreaker
-            fallbackUri: forward:/fallback
       routes:
         - id: auth-service
           uri: http://auth-service:5000
           predicates:
             - Path=/uaa/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/fallback
         - id: account-service
           uri: lb://account-service
           predicates:
             - Path=/accounts/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: accountCircuitBreaker
+                fallbackUri: forward:/fallback
         - id: statistics-service
           uri: lb://statistics-service
           predicates:
             - Path=/statistics/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: statisticsCircuitBreaker
+                fallbackUri: forward:/fallback
         - id: notification-service
           uri: lb://notification-service
           predicates:
             - Path=/notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: notificationCircuitBreaker
+                fallbackUri: forward:/fallback
       httpclient:
         connect-timeout: 20000
         response-timeout: 20s
@@ -41,7 +56,13 @@ resilience4j:
         wait-duration-in-open-state: 10000
         permitted-number-of-calls-in-half-open-state: 3
     instances:
-      defaultCircuitBreaker:
+      authCircuitBreaker:
+        base-config: default
+      accountCircuitBreaker:
+        base-config: default
+      statisticsCircuitBreaker:
+        base-config: default
+      notificationCircuitBreaker:
         base-config: default
   timelimiter:
     configs:
