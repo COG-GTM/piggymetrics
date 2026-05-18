@@ -5,7 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 @Document(collection = "users")
 public class User implements UserDetails {
@@ -26,8 +27,8 @@ public class User implements UserDetails {
 	}
 
 	@Override
-	public List<GrantedAuthority> getAuthorities() {
-		return null;
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return Collections.emptyList();
 	}
 
 	public void setUsername(String username) {
