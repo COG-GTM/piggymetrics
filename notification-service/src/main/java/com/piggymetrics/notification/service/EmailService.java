@@ -2,8 +2,8 @@ package com.piggymetrics.notification.service;
 
 import com.piggymetrics.notification.domain.NotificationType;
 import com.piggymetrics.notification.domain.Recipient;
+import jakarta.mail.MessagingException;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 
 public interface EmailService {
