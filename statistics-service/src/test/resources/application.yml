@@ -1,16 +1,25 @@
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 20000
-
 spring:
+  cloud:
+    config:
+      enabled: false
   data:
     mongodb:
       database: piggymetrics
-      port: 0
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5000/uaa/oauth2/jwks
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.12
+
+eureka:
+  client:
+    enabled: false
 
 rates:
   url: https://api.exchangeratesapi.io
