@@ -59,11 +59,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-				<version>${spring-cloud-netflix-legacy.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-sleuth</artifactId>
 				<version>${spring-cloud-sleuth-legacy.version}</version>
 			</dependency>
