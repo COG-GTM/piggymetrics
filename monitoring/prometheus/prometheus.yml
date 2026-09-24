@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  # Instances registered in Eureka are published by the monitoring service as a
+  # Prometheus http_sd document, so services are scraped as they come and go.
+  - job_name: piggymetrics-services
+    http_sd_configs:
+      - url: http://monitoring:8080/discovery/targets
+        refresh_interval: 15s
+
+  - job_name: monitoring
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['monitoring:8080']
