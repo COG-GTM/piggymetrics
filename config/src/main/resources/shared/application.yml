@@ -25,3 +25,9 @@ security:
 spring:
   rabbitmq:
     host: rabbitmq
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
