@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Shared structured logging configuration, picked up by every service that depends on the observability module. -->
+<configuration>
+	<springProperty scope="context" name="serviceName" source="spring.application.name" defaultValue="unknown-service"/>
+
+	<appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+			<includeContext>false</includeContext>
+			<customFields>{"service":"${serviceName}"}</customFields>
+			<fieldNames>
+				<timestamp>timestamp</timestamp>
+				<logger>logger</logger>
+				<thread>thread</thread>
+				<version>[ignore]</version>
+				<levelValue>[ignore]</levelValue>
+			</fieldNames>
+			<includeMdcKeyName>correlationId</includeMdcKeyName>
+			<includeMdcKeyName>traceId</includeMdcKeyName>
+			<includeMdcKeyName>spanId</includeMdcKeyName>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="JSON_CONSOLE"/>
+	</root>
+</configuration>

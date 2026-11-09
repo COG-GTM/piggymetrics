@@ -1,7 +1,7 @@
 package com.piggymetrics.statistics.service.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.FixedAuthoritiesExtractor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +28,7 @@ import java.util.*;
 
 public class CustomUserInfoTokenServices implements ResourceServerTokenServices {
 
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private static final String[] PRINCIPAL_KEYS = new String[] { "user", "username",
 			"userid", "user_id", "login", "id", "name" };
