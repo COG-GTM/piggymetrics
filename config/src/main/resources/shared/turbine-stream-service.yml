@@ -1,0 +1,4 @@
+# No security chain on this service: serve actuator on a separate port that docker-compose does not publish.
+management:
+  server:
+    port: 8990
