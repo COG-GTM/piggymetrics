@@ -86,6 +86,28 @@ namespace PiggyMetrics.Compliance.Services
                 }
             }
 
+            var dailyTotals = transactionLogs
+                .Where(l => l.Metadata != null && l.Metadata.ContainsKey("amount"))
+                .Select(l => (Day: l.Timestamp.Date, Parsed: decimal.TryParse(l.Metadata!["amount"], out decimal a), Amount: a))
+                .Where(t => t.Parsed)
+                .GroupBy(t => t.Day, t => t.Amount);
+
+            foreach (var day in dailyTotals)
+            {
+                var total = day.Sum();
+                if (total >= AML_DAILY_AGGREGATE_LIMIT)
+                {
+                    violations.Add(new ComplianceViolation
+                    {
+                        RuleCode = "AML-002",
+                        Regulation = "AML",
+                        Description = $"Transactions on {day.Key:yyyy-MM-dd} total {total}, exceeding the daily aggregate reporting threshold",
+                        Severity = ComplianceSeverity.Warning,
+                        DetectedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
             var overallStatus = DetermineStatus(violations);
 
             var report = new ComplianceReport
