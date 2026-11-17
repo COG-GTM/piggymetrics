@@ -11,6 +11,7 @@ server:
   servlet:
     context-path: /uaa
   port: 5000
+  forward-headers-strategy: framework
 
 auth:
   issuer-uri: http://auth-service:5000/uaa
