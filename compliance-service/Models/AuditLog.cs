@@ -9,37 +9,37 @@ namespace PiggyMetrics.Compliance.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [BsonElement("eventType")]
         public AuditEventType EventType { get; set; }
 
         [BsonElement("accountName")]
-        public string AccountName { get; set; }
+        public string AccountName { get; set; } = string.Empty;
 
         [BsonElement("serviceName")]
-        public string ServiceName { get; set; }
+        public string ServiceName { get; set; } = string.Empty;
 
         [BsonElement("action")]
-        public string Action { get; set; }
+        public string Action { get; set; } = string.Empty;
 
         [BsonElement("details")]
-        public string Details { get; set; }
+        public string? Details { get; set; }
 
         [BsonElement("ipAddress")]
-        public string IpAddress { get; set; }
+        public string? IpAddress { get; set; }
 
         [BsonElement("userAgent")]
-        public string UserAgent { get; set; }
+        public string? UserAgent { get; set; }
 
         [BsonElement("timestamp")]
         public DateTime Timestamp { get; set; }
 
         [BsonElement("metadata")]
-        public Dictionary<string, string> Metadata { get; set; }
+        public Dictionary<string, string>? Metadata { get; set; }
 
         [BsonElement("complianceFlags")]
-        public List<string> ComplianceFlags { get; set; }
+        public List<string>? ComplianceFlags { get; set; }
     }
 
     public enum AuditEventType

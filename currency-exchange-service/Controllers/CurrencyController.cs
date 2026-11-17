@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PiggyMetrics.CurrencyExchange.Models;
 using PiggyMetrics.CurrencyExchange.Services;
