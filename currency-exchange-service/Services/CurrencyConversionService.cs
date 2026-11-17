@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using PiggyMetrics.CurrencyExchange.Models;
 
 namespace PiggyMetrics.CurrencyExchange.Services
