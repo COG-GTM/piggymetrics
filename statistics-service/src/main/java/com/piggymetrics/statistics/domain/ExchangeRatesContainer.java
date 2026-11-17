@@ -1,5 +1,6 @@
 package com.piggymetrics.statistics.domain;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ public class ExchangeRatesContainer {
 
 	private LocalDate date = LocalDate.now();
 
+	@JsonAlias("base_code")
 	private Currency base;
 
 	private Map<String, BigDecimal> rates;

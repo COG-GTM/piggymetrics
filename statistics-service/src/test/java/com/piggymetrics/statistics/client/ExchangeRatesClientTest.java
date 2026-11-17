@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Disabled("calls the live exchangeratesapi.io endpoint, which now requires an API key")
+@Disabled("calls the live open.er-api.com endpoint")
 @SpringBootTest
 public class ExchangeRatesClientTest {
 

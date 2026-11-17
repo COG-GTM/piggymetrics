@@ -22,4 +22,4 @@ eureka:
     enabled: false
 
 rates:
-  url: https://api.exchangeratesapi.io
+  url: https://open.er-api.com
