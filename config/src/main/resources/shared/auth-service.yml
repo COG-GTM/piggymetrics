@@ -11,3 +11,8 @@ server:
   servlet:
     context-path: /uaa
   port: 5000
+  forward-headers-strategy: framework
+
+auth:
+  issuer-uri: http://auth-service:5000/uaa
+  browser-redirect-uris: ${BROWSER_REDIRECT_URIS:http://localhost:4000/,http://localhost/}
