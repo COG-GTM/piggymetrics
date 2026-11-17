@@ -9,10 +9,10 @@ namespace PiggyMetrics.Compliance.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [BsonElement("accountName")]
-        public string AccountName { get; set; }
+        public string AccountName { get; set; } = string.Empty;
 
         [BsonElement("generatedAt")]
         public DateTime GeneratedAt { get; set; }
@@ -27,7 +27,7 @@ namespace PiggyMetrics.Compliance.Models
         public ComplianceStatus OverallStatus { get; set; }
 
         [BsonElement("violations")]
-        public List<ComplianceViolation> Violations { get; set; }
+        public List<ComplianceViolation> Violations { get; set; } = new();
 
         [BsonElement("totalTransactionsAudited")]
         public int TotalTransactionsAudited { get; set; }
@@ -39,13 +39,13 @@ namespace PiggyMetrics.Compliance.Models
     public class ComplianceViolation
     {
         [BsonElement("ruleCode")]
-        public string RuleCode { get; set; }
+        public string RuleCode { get; set; } = string.Empty;
 
         [BsonElement("regulation")]
-        public string Regulation { get; set; }
+        public string Regulation { get; set; } = string.Empty;
 
         [BsonElement("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [BsonElement("severity")]
         public ComplianceSeverity Severity { get; set; }
@@ -54,7 +54,7 @@ namespace PiggyMetrics.Compliance.Models
         public DateTime DetectedAt { get; set; }
 
         [BsonElement("transactionId")]
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
     }
 
     public enum ComplianceStatus
