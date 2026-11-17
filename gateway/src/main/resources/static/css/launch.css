@@ -214,6 +214,11 @@ only screen and (min-resolution: 144dpi) {
 	-o-transition: all 400ms cubic-bezier(0.67, 0.07, 0.50, 0.88);
 	transition: all 400ms cubic-bezier(0.67, 0.07, 0.50, 0.88);
 }
+.side {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
 #auth {
 	position: absolute;
 	width: 300px;
