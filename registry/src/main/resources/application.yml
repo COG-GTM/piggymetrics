@@ -1,9 +1,10 @@
 spring:
   application:
     name: registry
+  config:
+    import: optional:configserver:${CONFIG_SERVICE_URI:http://config:8888}
   cloud:
     config:
-      uri: http://config:8888
       fail-fast: true
       password: ${CONFIG_SERVICE_PASSWORD}
       username: user
@@ -14,5 +15,5 @@ eureka:
   client:
     registerWithEureka: false
     fetchRegistry: false
-    server:
-      waitTimeInMsWhenSyncEmpty: 0
+  server:
+    wait-time-in-ms-when-sync-empty: 0
