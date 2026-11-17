@@ -168,16 +168,32 @@ services:
         max-size: "10m"
         max-file: "10"
 
-  turbine-stream-service:
-    environment:
-      CONFIG_SERVICE_PASSWORD: $CONFIG_SERVICE_PASSWORD
-    image: sqshq/piggymetrics-turbine-stream-service
+  prometheus:
+    image: prom/prometheus:v2.53.0
     restart: always
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
-      config:
-        condition: service_healthy
+      - monitoring
     ports:
-    - 8989:8989
+      - 9090:9090
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: $GRAFANA_ADMIN_PASSWORD
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
     logging:
       options:
         max-size: "10m"

@@ -44,17 +44,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
-				<version>${spring-cloud-netflix-legacy.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-hystrix-stream</artifactId>
-				<version>${spring-cloud-netflix-legacy.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-netflix-turbine-stream</artifactId>
 				<version>${spring-cloud-netflix-legacy.version}</version>
 			</dependency>
 			<dependency>
@@ -79,7 +69,6 @@
 		<module>account-service</module>
 		<module>statistics-service</module>
 		<module>notification-service</module>
-		<module>turbine-stream-service</module>
 	</modules>
 
 </project>

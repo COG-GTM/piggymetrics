@@ -223,7 +223,7 @@ public interface StatisticsServiceClient {
 
 ### Monitor dashboard
 
-In this project configuration, each microservice with Hystrix on board pushes metrics to Turbine via Spring Cloud Bus (with AMQP broker). The Monitoring project is just a small Spring boot application with the [Turbine](https://github.com/Netflix/Turbine) and [Hystrix Dashboard](https://github.com/Netflix-Skunkworks/hystrix-dashboard).
+Each microservice exposes its metrics - including the Resilience4j circuit breaker metrics - in Prometheus format on `/actuator/prometheus`, via Micrometer. The Monitoring project is a small Spring Boot application that publishes every instance registered in Eureka as a Prometheus [http_sd](https://prometheus.io/docs/prometheus/latest/http_sd/) document on `/discovery/targets`, so Prometheus scrapes service instances as they come and go. Grafana is provisioned with a Prometheus datasource and a circuit breaker dashboard (`monitoring/grafana/dashboards`).
 
 Let's see observe the behavior of our system under load: Statistics Service imitates a delay during the request processing. The response timeout is set to 1 second:
 
@@ -272,7 +272,7 @@ In this [configuration](https://github.com/sqshq/PiggyMetrics/blob/master/.travi
 
 ## Let's try it out
 
-Note that starting 9 Java Spring Boot applications, 3 .NET Core services, 6 MongoDB instances and a RabbitMQ instance requires at least 6Gb of RAM.
+Note that starting 8 Java Spring Boot applications, 3 .NET Core services, 6 MongoDB instances, a RabbitMQ instance, Prometheus and Grafana requires at least 6Gb of RAM.
 
 #### Before you start
 - Install Docker and Docker Compose.
@@ -293,7 +293,9 @@ If you'd like to start applications in Intellij Idea you need to either use [Env
 #### Important endpoints
 - http://localhost:80 - Gateway
 - http://localhost:8761 - Eureka Dashboard
-- http://localhost:9000/hystrix - Hystrix Dashboard (Turbine stream link: `http://turbine-stream-service:8080/turbine/turbine.stream`)
+- http://localhost:9000/discovery/targets - Prometheus service discovery document published by the Monitoring service
+- http://localhost:9090 - Prometheus
+- http://localhost:3000 - Grafana (default login: admin, password from `GRAFANA_ADMIN_PASSWORD` in `.env`)
 - http://localhost:15672 - RabbitMq management (default login/password: guest/guest)
 - http://localhost:8085/swagger - Fraud Detection Service API (.NET)
 - http://localhost:8086/swagger - Compliance Service API (.NET)
