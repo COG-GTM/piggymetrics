@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.util.StringUtils;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class AuthorizationServerConfig {
 
     private static final String DEFAULT_ISSUER = "http://auth-service:5000/uaa";
+    private static final String DEFAULT_BROWSER_REDIRECT_URIS = "http://localhost:4000/,http://localhost/";
 
     @Bean
     public RegisteredClientRepository registeredClientRepository(Environment env, PasswordEncoder passwordEncoder) {
@@ -39,7 +41,8 @@ public class AuthorizationServerConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:4000/login/oauth2/code/browser")
+                .redirectUris(uris -> uris.addAll(StringUtils.commaDelimitedListToSet(
+                        env.getProperty("auth.browser-redirect-uris", DEFAULT_BROWSER_REDIRECT_URIS))))
                 .scope("ui")
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(false)
